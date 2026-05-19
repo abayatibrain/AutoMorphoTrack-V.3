@@ -1,125 +1,70 @@
+# AutoMorphoTrack — Jupyter Notebooks
 
-# AutoMorphoTrack
+This repository hosts the **interactive Jupyter-notebook companion** to the
+[AutoMorphoTrack](https://github.com/abayatibrain/AutoMorphoTrack) Python
+package. The notebooks walk through the same pipeline (detection,
+morphology, shape profiling, tracking, motility, colocalization, and the
+integrated correlation summary) in a step-by-step, didactic format.
 
-**AutoMorphoTrack** is a fully automated pipeline for analyzing mitochondrial and lysosomal dynamics, morphology, and interactions from multi-channel time-lapse fluorescence microscopy stacks.
+If you want the **installable package** with CLI and the MCP connector for
+Claude Code, install from PyPI:
 
----
-
-## 🔧 Features and Capabilities
-
-- ✅ Automatic detection and thresholding for mitochondria (Channel 0) and lysosomes (Channel 1)
-- 🔍 Morphology classification: punctate vs. elongated mitochondria (with visual overlays and CSV export)
-- 📈 Motion analysis: displacement and velocity calculated per organelle, per frame
-- 🔄 Vector visualization of organelle motion (displacement arrows on Frame 0)
-- 🧠 Shape feature extraction: area, eccentricity, circularity, solidity, orientation, aspect ratio
-- 📊 CSV output + automated charting of:
-  - Morphology counts
-  - Displacement and velocity
-  - Shape features
-- 🔗 Colocalization analysis using masked Pearson correlation
-
----
-
-## 📁 Input Requirements
-
-- Multi-channel `.tif` stack
-- Channel 0: Mitochondria  
-- Channel 1: Lysosomes  
-- Channel 2: (ignored if present)
-
----
-
-## 🚀 How to Use (Python Users)
-
-```python
-from automorphotrack import run_full_pipeline
-
-run_full_pipeline("your_image_stack.tif")
+```bash
+pip install automorphotrack
 ```
 
-Outputs are saved automatically to `./outputs/` including figures, overlays, CSVs, and charts.
+and see the [package repo](https://github.com/abayatibrain/AutoMorphoTrack)
+for full documentation.
 
----
+## Repository layout
 
-## 🤖 Using with AI Chatbots (Non-Coding Users)
-
-Ask an AI assistant like ChatGPT to:
-
-> “Run the AutoMorphoTrack pipeline on `example.tif`, mitochondria in channel 0, lysosomes in channel 1.”
-
-It will walk you through detection, classification, motion analysis, and generate publication-ready outputs.
-
----
-
-## 📦 Outputs
-
-| Output Type         | Description                                   |
-|---------------------|-----------------------------------------------|
-| Figures             | Overlay images, vector motion, shape plots    |
-| CSV Files           | Morphology counts, shape features, velocities |
-| Charts              | Line plots for shape, motion, colocalization  |
-
----
-
-## 🧪 Citation
-
-If you use AutoMorphoTrack in your work, please cite:
-> Bayati, A. et al. AutoMorphoTrack: automated analysis of organelle dynamics and morphology. *In preparation*.
-
----
-
-## 🖼️ Colocalization Visualization (NEW)
-
-AutoMorphoTrack now includes **visualization of mitochondria–lysosome colocalization** in addition to masked Pearson correlation values.
-
-### What you get
-- **Frame 0 composite + colocalization heatmap** (`colocalization_frame0.png`):  
-  - Left: RGB composite (R = mitochondria, G = lysosomes)  
-  - Right: Colocalization heatmap computed as normalized intensity product
-- **Time series plot** (`colocalization_timeseries.png`): masked Pearson *r* per frame
-- **CSV output** (`colocalization_timeseries.csv`): frame-wise masked Pearson *r*
-
-### Minimal example
-
-```python
-import tifffile as tiff
-import numpy as np
-from colocalization import run_colocalization_pipeline
-
-# Load your two-channel stack (T x H x W x C) or (C x T x H x W); adapt as needed
-stack = tiff.imread("path/to/stack.tif")
-
-# Example: if stack is (T, H, W, 2)
-mito_stack = stack[..., 0]
-lyso_stack = stack[..., 1]
-
-out = run_colocalization_pipeline(mito_stack, lyso_stack, output_dir="outputs")
-print(out)
 ```
-Outputs are saved under `outputs/`:
-- `colocalization_frame0.png`
-- `colocalization_timeseries.png`
-- `colocalization_timeseries.csv`
+notebooks/
+  AutoMorphoTrack_Example.ipynb       Minimal end-to-end example
+  AutoMorphoTrack_Full_Package.ipynb  Full pipeline run, all stages
+  AutoMorphoTrack_Source_Code.ipynb   Cell-by-cell deep dive into each module
+docs/
+  usage_guide_v3.md                   Notebook-level usage guide
+  legacy_README_v3.md                 Historical README for V3.1
+```
 
-> **Note:** If you already compute masks for mitochondria/lysosomes, you can pass them as `mito_masks` and `lyso_masks` to restrict correlation to organelle-positive pixels.
+## Quick start
 
+```bash
+# Clone the notebooks
+git clone https://github.com/abayatibrain/AutoMorphoTrack-V.3.git
+cd AutoMorphoTrack-V.3
 
+# Install the package the notebooks call into
+pip install automorphotrack
 
-### Lysosomal Count Analysis
+# Launch Jupyter
+jupyter lab notebooks/
+```
 
-AutoMorphoTrack now automatically performs lysosomal counting:
+Open `AutoMorphoTrack_Example.ipynb` and replace the sample TIF path with
+your own multichannel stack.
 
-- **`lysosome_counts.csv`** → frame-by-frame lysosomal counts  
-- **`lysosome_count_overlay_Frame0.png`** → annotated Frame 0 image with count labels  
-- **`lysosome_count_over_time.png`** → line graph of lysosome count across time  
+## Relationship to the eLife-reviewed paper
 
-This analysis runs **immediately after mitochondrial morphology classification** in the standard pipeline.
+The notebooks here correspond to the "Jupyter notebook" execution mode
+described in [Bayati et al., *eLife* 2026](https://elifesciences.org/reviewed-preprints/109936),
+DOI [10.7554/eLife.109936.1](https://doi.org/10.7554/eLife.109936.1). The
+modular package version and the AMTComparison companion script are tracked
+in separate repos:
 
+- **Package** — https://github.com/abayatibrain/AutoMorphoTrack
+- **Comparison framework** — https://github.com/abayatibrain/AMTcomparison
 
-### Mitochondrial Morphology Classification (Updated)
+## What changed in this cleanup
 
-Elongated mitochondria are now classified with **relaxed thresholds** to increase detection:
-- **Elongated:** area ≥ 0.15 µm² and eccentricity ≥ 0.7  
-- **Punctate:** area ≥ 0.015 µm² and eccentricity ≤ 0.85  
+This repo previously contained a mix of monolithic `.py` modules, `.bak`
+backups, `__pycache__`, sample-output PNG/CSVs, and a zip archive of the
+whole tree. All of that has been removed; the canonical, maintained code
+lives in the **package** repo. Only the notebooks (which are *not*
+duplicated in the package repo) remain here so they can be cited and
+re-executed as supplementary material.
 
-This change increases the number of mitochondria detected as elongated while keeping punctate classification stable.
+## License
+
+MIT (see `LICENSE` or the package repo for the full text).
